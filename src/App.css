@@ -1,0 +1,154 @@
+/* General styles */
+body {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #4ea1f3;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Form container */
+.MuiBox-root {
+  background-color: #2a2a2a;
+  padding: 2rem;
+  border-radius: 16px;
+  margin: 2rem auto;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* TextField & Autocomplete input styling */
+.MuiOutlinedInput-root {
+  background-color: #1e1e1e !important;
+  border-radius: 12px !important;
+  border: 1px solid #4ea1f3 !important;
+  padding-top: 6px !important;
+  transition: border 0.3s ease;
+}
+
+.MuiOutlinedInput-root:hover {
+  border-color: #82c6ff !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border: none !important;
+}
+
+.MuiInputBase-input {
+  color: #e0e0e0 !important;
+  padding: 14px 12px !important;
+}
+
+.MuiInputLabel-root {
+  color: #ccc !important;
+  background-color: #1e1e1e;
+  padding: 0 4px;
+  transform: translate(14px, -6px) scale(0.75);
+}
+
+.MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"] {
+  padding: 6px 10px !important;
+}
+
+.MuiAutocomplete-input {
+  color: #e0e0e0 !important;
+}
+
+.MuiChip-deleteIcon {
+  color: #ccc !important;
+}
+.MuiChip-label {
+  color: #ccc !important;
+}
+/* Autocomplete dropdown */
+/* Autocomplete popper wrapper */
+.MuiAutocomplete-popper {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  border: 1px solid #4ea1f3;
+  margin-top: 4px;
+  color: #e0e0e0;
+  z-index: 1300; /* ensure it floats above other elements */
+}
+
+/* List inside the popper */
+.MuiAutocomplete-listbox {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  padding: 0;
+  margin: 0;
+  border-radius: 8px;
+}
+
+/* Each option inside the listbox */
+.MuiAutocomplete-option {
+  padding: 8px 16px;
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+/* Hovered option */
+.MuiAutocomplete-option:hover {
+  background-color: #5e5d5d !important;
+  border-radius: 5px;
+}
+
+/* Selected option */
+.MuiAutocomplete-option[aria-selected="true"] {
+  background-color: #4ea1f3;
+  color: #ffffff;
+}
+
+/* Slider styling */
+.sliderSection .MuiSlider-root {
+  color: #4ea1f3;
+}
+
+.sliderSection .MuiSlider-markLabel {
+  color: #e0e0e0;
+}
+
+/* Select dropdown */
+.MuiSelect-root {
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  border-radius: 12px !important;
+  border: 1px solid #4ea1f3 !important;
+  padding: 12px !important;
+}
+
+.MuiMenu-paper {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #4ea1f3;
+}
+
+/* Buttons */
+.MuiButton-contained {
+  background-color: #4ea1f3;
+  color: #1e1e1e;
+  font-weight: bold;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.MuiButton-contained:hover {
+  background-color: #82c6ff;
+}
+
+/* Response area */
+.response.area {
+  margin: 2rem auto;
+  width: 90%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}

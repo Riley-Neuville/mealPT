@@ -7,15 +7,34 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import OpenAI from "openai";
+import Meal from "./components/Meal";
 
 function App() {
   const [calories, setCalories] = useState(1500);
   const [diet, setDiet] = useState("None");
   const [name, setName] = useState("");
   const [allergies, setAllergies] = useState("");
-  const [response, setResponse] = useState("Your response will appear here");
+  const [response, setResponse] = useState<string>(
+    "Your response will appear here"
+  );
+  const [mealData, setMealData] = useState<MealType[]>([]);
+
   const [proteins, setProteins] = useState("");
   const [loading, setLoading] = useState(false);
+
+  type Meal = {
+    name: string;
+    ingredients: string[];
+    instructions: string;
+    calories: number;
+  };
+
+  type MealType = {
+    name: string;
+    ingredients: string[];
+    instructions: string;
+    calories: number;
+  };
 
   const apiKey = import.meta.env.VITE_API_KEY;
   const client = new OpenAI({
@@ -34,21 +53,92 @@ function App() {
   ];
   async function handleClick() {
     setLoading(true);
-    const fullMessage = `Create a meal plan for one day that totals ${calories} calories. The meal plan should include 3 meals. Please follow the dietary restrictions: ${diet}. The user is named ${name}, has the following proteins on hand: ${proteins} and has the following allergies: ${allergies}. Please provide the meal plan in a clear and concise format and include the calorie estimate of each ingredient.`;
+    const fullMessage = `Create a meal plan for one day that totals ${calories} calories. The meal plan should include 3 meals. Please follow the dietary restrictions: ${diet}. The user is named ${name}, has the following proteins on hand: ${proteins} and has the following allergies: ${allergies}.
+    
+    Please return the meal plan as a JSON object with the following structure and do not include any other text so it is easily parsable:
+{
+  "meals": [
+    {
+      "name": "Breakfast - Avocado Toast with Eggs",
+      "ingredients": ["2 eggs", "1 slice whole wheat toast", "1/2 avocado"],
+      "instructions": "Cook the eggs to your liking. Toast the bread. Serve with sliced avocado.",
+      "calories": 350
+    },
+    {
+      "name": "Lunch",
+      "ingredients": [...],
+      ...
+    },
+    ...
+  ]
+}`;
     try {
       const chatCompletion = await client.chat.completions.create({
         messages: [{ role: "user", content: fullMessage }],
         model: "gpt-4o",
       });
-      setResponse(
-        chatCompletion.choices[0]?.message?.content || "No response."
-      );
-    } catch (error) {
-      console.error("Error fetching response:", error);
-      setResponse("Failed to get response.");
+      const raw = chatCompletion.choices[0]?.message?.content || "";
+      const match = raw.match(/\{[\s\S]*\}/); // Match the full JSON object
+
+      if (!match) {
+        console.error("No JSON object found in GPT response");
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(match[0]);
+
+        if (Array.isArray(parsed.meals)) {
+          setMealData(parsed.meals);
+        } else {
+          console.error("Parsed data does not contain a meals array");
+        }
+      } catch (err) {
+        console.error("Error parsing GPT response JSON:", err);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
+
+  function handleClickJSON() {
+    console.log(response);
+  }
+
+  const swapMeal = async (index: number) => {
+    if (!mealData) return;
+
+    const currentMeal = mealData[index];
+
+    const swapPrompt = `Give me one meal idea with about ${currentMeal.calories} calories that is eaten at the same time of day as ${currentMeal.name} but is not the same as ${currentMeal.name}.  Please follow the dietary restrictions: ${diet}. The user has the following proteins on hand: ${proteins} and has the following allergies: ${allergies}. Format it as a JSON object:
+{
+  "name": "Breakfast - Avocado Toast with Eggs",
+      "ingredients": ["2 eggs", "1 slice whole wheat toast", "1/2 avocado"],
+      "instructions": "Cook the eggs to your liking. Toast the bread. Serve with sliced avocado.",
+      "calories": 350
+}`;
+
+    try {
+      const res = await client.chat.completions.create({
+        messages: [{ role: "user", content: swapPrompt }],
+        model: "gpt-4o",
+      });
+
+      const raw = res.choices[0]?.message?.content || "";
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("No valid JSON found");
+
+      const newMeal = JSON.parse(match[0]);
+
+      // Replace only the selected meal
+      const updatedMeals = [...mealData];
+      updatedMeals[index] = newMeal;
+      setMealData(updatedMeals);
+    } catch (err) {
+      console.error("Swap error:", err);
+      alert("Failed to swap meal.");
+    }
+  };
 
   return (
     <>
@@ -87,10 +177,11 @@ function App() {
           id="tags-standard"
           options={proteinList}
           getOptionLabel={(option) => option.title}
+          getOptionDisabled={(option) => proteins.includes(option.title)}
           renderInput={(params) => (
             <TextField
               {...params}
-              variant="standard"
+              variant="outlined"
               label="Select which proteins you have on hand"
               placeholder="Proteins"
             />
@@ -141,31 +232,17 @@ function App() {
         </Button>
       </Box>
       <div className="response area">
-        <Box
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-          component="form"
-          sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" } }}
-          noValidate
-          autoComplete="off"
-        >
-          <TextField
-            style={{ width: "50%" }}
-            id="outlined-multiline-flexible"
-            label="Response"
-            value={response}
-            multiline
-            slotProps={{
-              input: {
-                readOnly: true,
-              },
-            }}
-            maxRows={10}
-          />
-        </Box>
+        {Array.isArray(mealData) &&
+          mealData.map((meal, index) => (
+            <Meal
+              key={index}
+              name={meal.name}
+              ingredients={meal.ingredients}
+              instructions={meal.instructions}
+              calories={meal.calories}
+              onSwap={() => swapMeal(index)}
+            />
+          ))}
       </div>
     </>
   );
