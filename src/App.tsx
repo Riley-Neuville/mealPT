@@ -6,6 +6,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import MuiInput from "@mui/material/Input";
+import { styled } from "@mui/material/styles";
 import OpenAI from "openai";
 import Meal from "./components/Meal";
 
@@ -41,6 +43,10 @@ function App() {
     apiKey: apiKey,
     dangerouslyAllowBrowser: true, // This is the default and can be omitted
   });
+
+  const Input = styled(MuiInput)`
+    width: 42px;
+  `;
 
   const proteinList = [
     { title: "Chicken" },
@@ -198,16 +204,32 @@ function App() {
           <Slider
             aria-label="always visible"
             defaultValue={1500}
+            value={calories}
             valueLabelDisplay="auto"
             shiftStep={100}
             step={100}
             marks={true}
             min={1000}
             max={3000}
-            onChange={(e, value) => setCalories(value as number)}
+            onChange={(e: Event, value: number | number[]) =>
+              setCalories(value as number)
+            }
+          />
+          <Input
+            value={calories}
+            size="small"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setCalories(Number(e.target.value))
+            }
+            inputProps={{
+              step: 100,
+              min: 1000,
+              max: 3000,
+              type: "number",
+              "aria-labelledby": "input-slider",
+            }}
           />
         </div>
-        <p>{calories}</p>
         <br></br>
         <Select
           labelId="demo-simple-select-label"
